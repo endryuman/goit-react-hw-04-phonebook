@@ -1,42 +1,44 @@
 import styles from './ContactForm.module.css';
-import { Component } from 'react';
+import { useState } from 'react';
 
-export class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
-  };
-  handelSubmit = e => {
+export const ContactForm = ({ addContact }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const handelSubmit = e => {
     e.preventDefault();
-    this.props.addContact(this.state);
+    addContact({
+      name,
+      number,
+    });
     e.target.reset();
   };
-  handleChange = ({ target: { value, name } }) => {
-    this.setState({ [name]: value });
+  const handleChange = ({ target: { value, name } }) => {
+    if (name === 'name') setName(value);
+    if (name === 'number') setNumber(value);
   };
-  render() {
-    return (
-      <form className={styles.contactForm} onSubmit={this.handelSubmit}>
-        <label htmlFor="name">Name</label>
-        <input
-          id="name"
-          type="text"
-          name="name"
-          value={this.state.value}
-          onChange={this.handleChange}
-          required
-        />
-        <label htmlFor="number">Number</label>
-        <input
-          id="number"
-          type="tel"
-          name="number"
-          value={this.state.value}
-          onChange={this.handleChange}
-          required
-        />
-        <button type="submit">Add contact</button>
-      </form>
-    );
-  }
-}
+
+  return (
+    <form className={styles.contactForm} onSubmit={handelSubmit}>
+      <label htmlFor="name">Name</label>
+      <input
+        id="name"
+        type="text"
+        name="name"
+        value={name}
+        onChange={handleChange}
+        required
+      />
+      <label htmlFor="number">Number</label>
+      <input
+        id="number"
+        type="tel"
+        name="number"
+        value={number}
+        onChange={handleChange}
+        required
+      />
+      <button type="submit">Add contact</button>
+    </form>
+  );
+};

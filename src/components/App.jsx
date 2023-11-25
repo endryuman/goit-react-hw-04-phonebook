@@ -1,41 +1,38 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import Section from './Section/Section';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactsList } from './ContactsList/ContactsList';
 import { nanoid } from 'nanoid';
 import { Filter } from './Filter/Filter';
 
-export class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+import React from 'react';
 
-  addContact = newContact => {
-    if (this.checkContactExists(newContact.name)) {
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [filter, setFilter] = useState('');
+
+  const addContact = newContact => {
+    if (checkContactExists(newContact.name)) {
       return;
     }
     const contactsObj = {
       ...newContact,
       id: nanoid(),
     };
-    this.setState(prev => ({
-      contacts: [...prev.contacts, contactsObj],
-    }));
+    setContacts(prev => [...prev, contactsObj]);
   };
 
-  componentDidUpdate(_, prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  useEffect(() => {
+    if (contacts.length > 0) {
+      localStorage.setItem('contacts', JSON.stringify(contacts));
     }
-  }
+  }, [contacts]);
 
-  changeFilter = e => {
-    this.setState({ filter: e.currentTarget.value });
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value);
   };
 
-  getVisibleContacts = () => {
-    const { filter, contacts } = this.state;
+  const getVisibleContacts = () => {
     const normalizedFilter = filter.toLowerCase();
     if (filter === '') {
       return contacts;
@@ -46,14 +43,11 @@ export class App extends Component {
     }
   };
 
-  deleteContact = id => {
-    this.setState(prev => ({
-      contacts: prev.contacts.filter(el => el.id !== id),
-    }));
+  const deleteContact = id => {
+    setContacts(prev => prev.filter(el => el.id !== id));
   };
 
-  checkContactExists = newName => {
-    const { contacts } = this.state;
+  const checkContactExists = newName => {
     const isNameDuplicate = contacts.some(contact => contact.name === newName);
 
     if (isNameDuplicate) {
@@ -62,32 +56,29 @@ export class App extends Component {
     }
   };
 
-  componentDidMount() {
+  useEffect(() => {
     const localData = localStorage.getItem('contacts');
     if (localData) {
-      this.setState({ contacts: JSON.parse(localData) });
+      setContacts(JSON.parse(localData));
     } else
-      this.setState({
-        contacts: [{ id: 'id-1', name: 'Contact Number', number: '459-12-56' }],
-      });
-  }
+      setContacts([
+        { id: 'id-1', name: 'Contact Number', number: '459-12-56' },
+      ]);
+  }, []);
 
-  render() {
-    const { filter } = this.state;
-    const visibleContacts = this.getVisibleContacts();
-    return (
-      <div>
-        <Section title="Phonebook">
-          <ContactForm addContact={this.addContact} />
-        </Section>
-        <Section title="Contacts">
-          <Filter value={filter} onChange={this.changeFilter} />
-          <ContactsList
-            contacts={visibleContacts}
-            deleteContact={this.deleteContact}
-          />
-        </Section>
-      </div>
-    );
-  }
-}
+  const visibleContacts = getVisibleContacts();
+  return (
+    <div>
+      <Section title="Phonebook">
+        <ContactForm addContact={addContact} />
+      </Section>
+      <Section title="Contacts">
+        <Filter value={filter} onChange={changeFilter} />
+        <ContactsList
+          contacts={visibleContacts}
+          deleteContact={deleteContact}
+        />
+      </Section>
+    </div>
+  );
+};
