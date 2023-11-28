@@ -1,9 +1,10 @@
 import styles from './ContactForm.module.css';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 export const ContactForm = ({ addContact }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const formRef = useRef(null);
 
   const handelSubmit = e => {
     e.preventDefault();
@@ -11,7 +12,11 @@ export const ContactForm = ({ addContact }) => {
       name,
       number,
     });
-    e.target.reset();
+    if (formRef.current) {
+      formRef.current.reset();
+      setName('');
+      setNumber('');
+    }
   };
   const handleChange = ({ target: { value, name } }) => {
     if (name === 'name') setName(value);
@@ -19,7 +24,7 @@ export const ContactForm = ({ addContact }) => {
   };
 
   return (
-    <form className={styles.contactForm} onSubmit={handelSubmit}>
+    <form ref={formRef} className={styles.contactForm} onSubmit={handelSubmit}>
       <label htmlFor="name">Name</label>
       <input
         id="name"
