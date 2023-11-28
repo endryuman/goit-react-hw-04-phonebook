@@ -5,10 +5,15 @@ import { ContactsList } from './ContactsList/ContactsList';
 import { nanoid } from 'nanoid';
 import { Filter } from './Filter/Filter';
 
-import React from 'react';
-
 export const App = () => {
-  const [contacts, setContacts] = useState([]);
+  const [contacts, setContacts] = useState(() => {
+    const localData = localStorage.getItem('contacts');
+    if (localData) {
+      return JSON.parse(localData);
+    } else {
+      return [{ id: 'id-1', name: 'Contact Number', number: '459-12-56' }];
+    }
+  });
   const [filter, setFilter] = useState('');
 
   const addContact = newContact => {
@@ -55,16 +60,6 @@ export const App = () => {
       return true;
     }
   };
-
-  useEffect(() => {
-    const localData = localStorage.getItem('contacts');
-    if (localData) {
-      setContacts(JSON.parse(localData));
-    } else
-      setContacts([
-        { id: 'id-1', name: 'Contact Number', number: '459-12-56' },
-      ]);
-  }, []);
 
   const visibleContacts = getVisibleContacts();
   return (
